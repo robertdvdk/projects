@@ -11,6 +11,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 # Function definitions
+
+# (almost) finished
+
 class MultiHeadAttention(nn.Module):
     def __init__(self, h, dm, dk, dv):
         """Paper: h = 8, dm = 512, dk = 64, dv = 64"""
@@ -24,12 +27,15 @@ class MultiHeadAttention(nn.Module):
         self.W_o = torch.nn.Parameter(torch.randn(h*dv, dm))
 
     def attention(self, q, k, v) -> torch.Tensor:
+        #TODO implement mask
         numerator = torch.matmul(q, torch.transpose(k, 0, 1))
         denominator = self.dk ** 0.5
         softmax = F.softmax(torch.divide(numerator, denominator), dim=-1)
-        return torch.matmul(softmax, v)
+        attention = torch.matmul(softmax, v)
+        return attention
 
     def forward(self, q, k, v) -> torch.Tensor:
+        #TODO implement mask
         heads_output = []
         for head in range(self.h):
             # Linearly project q, k, v for each head
@@ -37,7 +43,7 @@ class MultiHeadAttention(nn.Module):
             k_proj = torch.matmul(k, self.W_k[head])
             v_proj = torch.matmul(v, self.W_v[head])
             # Calculate attention for each linear projection
-            heads_output.append(self.attention(q_proj, k_proj, v_proj))
+            heads_output.append(self.attention(q_proj, k_proj, v_proj, mask))
         return torch.matmul(torch.hstack(heads_output), self.W_o)
 
 
@@ -79,6 +85,7 @@ class DecoderLayer(nn.Module):
         x = self.norm(x + self.feedforward(x))
         return x
 
+# Work in progress
 
 class Embedding(nn.Module):
     def __init__(self):
@@ -107,7 +114,9 @@ class Transformer(nn.Module):
 
 
 def main():
-    pass
+    attn = MultiHeadAttention(8, 2, 2, 2)
+    x = torch.Tensor([[1, 2], [3, 4]])
+    print(attn(x, x, x))
 
 
 if __name__ == "__main__":
