@@ -6,11 +6,9 @@ What does this module do
 Usage: python3 ...
 """
 # Import statements
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 
 # Function definitions
 class MultiHeadAttention(nn.Module):
@@ -82,11 +80,24 @@ class DecoderLayer(nn.Module):
         return x
 
 
+class Embedding(nn.Module):
+    def __init__(self):
+        super().__init__()
+        nn.Embedding()
+
+
+
 class Transformer(nn.Module):
     def __init__(self):
         super().__init__()
+        dm = 512
         self.encoder_stack = [EncoderLayer() for _ in range(6)]
         self.decoder_stack = [DecoderLayer() for _ in range(6)]
+        self.embedding = nn.Embedding(37000, dm)
+
+
+    def embed(self, x):
+        nn.Embedding(dm, )
 
     def forward(self, x, y):
         for i in self.encoder_stack:
